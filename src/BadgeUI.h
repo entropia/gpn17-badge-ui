@@ -9,7 +9,6 @@ class UIElement {
 public:
   virtual void draw(TFT_ILI9163C* tft) = 0;
   virtual bool isDirty() = 0;
-private:
   UIElement* parent = nullptr;
 };
 
@@ -53,14 +52,32 @@ public:
     head = root = new FullScreenStatus();
   }
 
+  void open(UIElement* element) {
+    element->parent = head;
+    head = element;
+  }
+
+  void closeCurrent() {
+    UIElement* old = head;
+    if(!old->parent) {
+      return;
+    }
+    head = old->parent;
+    forceRedraw = true;
+    delete old;
+  }
+
   void draw() {
-    if(head->isDirty()) {
+    if(forceRedraw || head->isDirty()) {
       head->draw(this->tft);
       this->tft->writeFramebuffer();
+      forceRedraw = false;
     }
   }
 protected:
   TFT_ILI9163C* tft;
+private:
+  bool forceRedraw = false;
 };
 
 
