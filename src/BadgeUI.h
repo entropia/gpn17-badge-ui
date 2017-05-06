@@ -1,7 +1,10 @@
+#pragma once
+
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_GFX.h>
 #include <Fonts/FreeSans24pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
+#include <FS.h>
 
 #define BUFFPIXEL 20
 
