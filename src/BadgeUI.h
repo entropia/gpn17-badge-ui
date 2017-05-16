@@ -52,6 +52,9 @@ public:
   }
 
   void setSub(String sub, uint16_t x, uint16_t y) {
+    if(sub == this->sub && subx == x && suby == y) {
+    	return;
+    }
     this->sub = sub;
     this->subx = x;
     this->suby = y;
