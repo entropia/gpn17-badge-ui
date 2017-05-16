@@ -110,6 +110,7 @@ void FullScreenBMPStatus::bmpDraw(const char *filename, uint8_t x, uint16_t y, T
 	  if((y+h-1) >= tft->height()) h = tft->height() - y;
 	  //tft->startPushData(x, y, x+w-1, y+h-1);
 	  for (row=0; row<h; row++) { // For each scanline...
+        uint8_t row_data[w * 2];
 	    if (flip){ // Bitmap is stored bottom-to-top order (normal BMP)
 	      pos = bmpImageoffset + (bmpHeight - 1 - row) * rowSize;
 	    } 
@@ -130,8 +131,11 @@ void FullScreenBMPStatus::bmpDraw(const char *filename, uint8_t x, uint16_t y, T
 	      b = sdbuffer[buffidx++];
 	      g = sdbuffer[buffidx++];
 	      r = sdbuffer[buffidx++];
-	      tft->drawPixel(x+col, y+row, tft->Color565(r,g,b));
+          uint16_t val = tft->Color565(r,g,b);
+          row_data[2 * col + 1] = (uint8_t)val;
+          row_data[2 * col] = *(((uint8_t*)&val) + 1);
 	    } // end pixel
+        tft->writeRow(y + row, x, w, row_data);
 	  } // end scanline
 	  //tft->endPushData();
 	} // end goodBmp
