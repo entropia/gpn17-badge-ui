@@ -13,6 +13,7 @@ public:
   virtual void draw(TFT_ILI9163C* tft) = 0;
   virtual bool isDirty() = 0;
   virtual void dispatchInput(JoystickState state) {}
+  virtual ~UIElement() {}
   UIElement* parent = nullptr;
 };
 
@@ -115,6 +116,7 @@ public:
     }
     head = old->parent;
     forceRedraw = true;
+    Serial.println("UI: deleting old");
     delete old;
   }
 
@@ -170,9 +172,11 @@ protected:
 class Menu: public UIElement {
 public:
   ~Menu(){
+    Serial.println("UI: deleting menu");
     MenuItem * ite = tail;
     while(ite) {
       MenuItem * pre = ite->prev;
+      Serial.printf("Deleting item '%s'\n", ite->text.c_str());
       delete ite;
       ite = pre;
     }
