@@ -127,12 +127,17 @@ public:
   }
 
   void dispatchInput(JoystickState state){
+    if(prevState == state) {
+      return;
+    }
+    prevState = state;
     head->dispatchInput(state);
   }
 protected:
   TFT_ILI9163C* tft;
 private:
   bool forceRedraw = false;
+  JoystickState prevState = JoystickState::BTN_NOTHING;
 };
 
 class MenuItem: public UIElement {
@@ -176,10 +181,6 @@ public:
   void draw(TFT_ILI9163C* tft);
 
   void dispatchInput(JoystickState state) {
-    if(prevState == state) {
-      return;
-    }
-    prevState = state;
     switch(state) {
       case JoystickState::BTN_UP:
         if(!focus->prev) {
@@ -241,7 +242,6 @@ public:
     dirty = true;
   }
 private:
-  JoystickState prevState = JoystickState::BTN_NOTHING;
   bool dirty = true;
   MenuItem * tail = nullptr;
   MenuItem * firstVisible = nullptr;
