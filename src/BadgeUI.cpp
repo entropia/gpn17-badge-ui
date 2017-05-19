@@ -91,7 +91,11 @@ void NotificationScreen::draw(TFT_ILI9163C * tft) {
     tft->setCursor(0,15);
     tft->setTextColor(BLACK);
     tft->setFont(&FreeSans9pt7b);
-    tft->printf("%s@%s\n\n%s", summary.c_str(), location.c_str(), description.c_str()); 
+    if(location == "") {
+        tft->printf("%s\n\n%s", summary.c_str(), description.c_str()); 
+    } else {
+        tft->printf("%s@%s\n\n%s", summary.c_str(), location.c_str(), description.c_str()); 
+    }
     dirty = false;
 }
 
