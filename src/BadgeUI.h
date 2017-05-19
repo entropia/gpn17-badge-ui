@@ -12,6 +12,7 @@ class UIElement {
 public:
   virtual void draw(TFT_ILI9163C* tft) = 0;
   virtual bool isDirty() = 0;
+  virtual void dispatchInput(JoystickState state) {}
   UIElement* parent = nullptr;
 };
 
@@ -44,7 +45,7 @@ class FullScreenBMPStatus: public UIElement {
 public:
   void draw(TFT_ILI9163C* tft);
 
- bool isDirty() {
+  bool isDirty() {
     return dirty;
   }
   void setBmp(char* path, uint16_t x, uint16_t y) {
@@ -123,6 +124,10 @@ public:
       this->tft->writeFramebuffer();
       forceRedraw = false;
     }
+  }
+
+  void dispatchInput(JoystickState state){
+    head->dispatchInput(state);
   }
 protected:
   TFT_ILI9163C* tft;
