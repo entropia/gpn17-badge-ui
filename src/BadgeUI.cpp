@@ -61,9 +61,6 @@ void FullScreenBMPStatus::draw(TFT_ILI9163C* tft) {
 }
 
 void Menu::draw(TFT_ILI9163C* tft) {
-    if(!dirty) {
-        return;
-    }
     tft->fillScreen(WHITE);
     MenuItem * currentDraw = firstVisible;
     int i = 0;
@@ -86,6 +83,16 @@ void MenuItem::draw(TFT_ILI9163C* tft){
         tft->setTextColor(BLACK);
     }
     tft->print(this->text);
+}
+
+
+void NotificationScreen::draw(TFT_ILI9163C * tft) {
+    tft->fillScreen(WHITE);
+    tft->setCursor(0,15);
+    tft->setTextColor(BLACK);
+    tft->setFont(&FreeSans9pt7b);
+    tft->printf("%s@%s\n\n%s", summary.c_str(), location.c_str(), description.c_str()); 
+    dirty = false;
 }
 
 void FullScreenBMPStatus::bmpDraw(const char *filename, uint8_t x, uint16_t y, TFT_ILI9163C* tft) {

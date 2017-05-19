@@ -15,6 +15,9 @@ public:
   virtual void dispatchInput(JoystickState state) {}
   virtual ~UIElement() {}
   UIElement* parent = nullptr;
+  virtual bool isValid() {
+    return true;
+  }
 };
 
 class FullScreenStatus: public UIElement {
@@ -41,6 +44,31 @@ private:
 };
 
 
+
+class NotificationScreen: public UIElement {
+public:
+  NotificationScreen(String summary, String location, String description): summary(summary), location(location), description(description){}
+
+  void draw(TFT_ILI9163C* tft);
+
+  bool isDirty() {
+    return dirty;
+  }
+
+  void dispatchInput(JoystickState state) {
+    if(state == JoystickState::BTN_ENTER) {
+      valid = false;
+    }
+  }
+
+  bool isValid() {
+    return valid;
+  }
+private:
+  String summary, location, description;
+  bool dirty = true;
+  bool valid = true;
+};
 
 class FullScreenBMPStatus: public UIElement {
 public:
@@ -116,11 +144,14 @@ public:
     }
     head = old->parent;
     forceRedraw = true;
-    Serial.println("UI: deleting old");
     delete old;
   }
 
   void draw() {
+    if(!head->isValid()) {
+      closeCurrent();
+      return;
+    }
     if(forceRedraw || head->isDirty()) {
       head->draw(this->tft);
       this->tft->writeFramebuffer();
@@ -172,11 +203,9 @@ protected:
 class Menu: public UIElement {
 public:
   ~Menu(){
-    Serial.println("UI: deleting menu");
     MenuItem * ite = tail;
     while(ite) {
       MenuItem * pre = ite->prev;
-      Serial.printf("Deleting item '%s'\n", ite->text.c_str());
       delete ite;
       ite = pre;
     }
