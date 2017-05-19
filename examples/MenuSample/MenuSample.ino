@@ -18,6 +18,6 @@ void setup() {
 }
 
 void loop() {
-  menu->dispatchInput(badge.getJoystickState());
+  ui->dispatchInput(badge.getJoystickState());
   ui->draw();
 }
