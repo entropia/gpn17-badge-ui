@@ -60,6 +60,33 @@ void FullScreenBMPStatus::draw(TFT_ILI9163C* tft) {
     this->dirty = false;
 }
 
+void Menu::draw(TFT_ILI9163C* tft) {
+    if(!dirty) {
+        return;
+    }
+    tft->fillScreen(WHITE);
+    MenuItem * currentDraw = firstVisible;
+    int i = 0;
+    while(currentDraw && i < UI_LINES_IN_MENU) {
+        tft->setCursor(10, (i*_TFTHEIGHT/UI_LINES_IN_MENU)+25);
+        tft->drawLine(0, i*_TFTHEIGHT/UI_LINES_IN_MENU, _TFTWIDTH, i*_TFTHEIGHT/UI_LINES_IN_MENU, BLACK);
+        currentDraw->draw(tft);
+        currentDraw = currentDraw->next;
+        i++;
+    }
+    this->dirty = false;
+}
+
+void MenuItem::draw(TFT_ILI9163C* tft){
+    tft->setFont(&FreeSans9pt7b);
+    tft->setTextSize(1);
+    if(selected) {
+        tft->setTextColor(BLUE);
+    } else {
+        tft->setTextColor(BLACK);
+    }
+    tft->print(this->text);
+}
 
 void FullScreenBMPStatus::bmpDraw(const char *filename, uint8_t x, uint16_t y, TFT_ILI9163C* tft) {
     File     bmpFile;

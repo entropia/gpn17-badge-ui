@@ -1,6 +1,12 @@
+// vim: noai:ts=2:sw=2
 #pragma once
 
 #define BUFFPIXEL 20
+#include <GPNBadge.hpp>
+
+#define UI_LINES_IN_MENU 3
+
+#define BLUE    0x001F
 
 class UIElement {
 public:
@@ -38,7 +44,7 @@ class FullScreenBMPStatus: public UIElement {
 public:
   void draw(TFT_ILI9163C* tft);
 
-  bool isDirty() {
+ bool isDirty() {
     return dirty;
   }
   void setBmp(char* path, uint16_t x, uint16_t y) {
@@ -123,4 +129,118 @@ protected:
 private:
   bool forceRedraw = false;
 };
+
+class MenuItem: public UIElement {
+public:
+  friend class Menu;
+  MenuItem(String text, std::function<void(void)> trigger): text(text), triggerFunc(trigger) {
+  } 
+
+  void draw(TFT_ILI9163C* tft);
+  
+  bool isDirty() {
+    return true;
+  }
+
+  void setSelect(bool selected) {
+    this->selected = selected;
+  }
+private:
+  String text;
+  std::function<void(void)> triggerFunc;
+  bool selected = false;
+protected:
+  MenuItem* prev = nullptr;
+  MenuItem* next = nullptr;
+  void trigger() {
+    triggerFunc();
+  }
+};
+
+class Menu: public UIElement {
+public:
+  ~Menu(){
+    MenuItem * ite = tail;
+    while(ite) {
+      MenuItem * pre = ite->prev;
+      delete ite;
+      ite = pre;
+    }
+  }
+
+  void draw(TFT_ILI9163C* tft);
+
+  void dispatchInput(JoystickState state) {
+    if(prevState == state) {
+      return;
+    }
+    prevState = state;
+    switch(state) {
+      case JoystickState::BTN_UP:
+        if(!focus->prev) {
+          return;
+        }
+        focus->setSelect(false);
+        focus = focus->prev;
+        focus->setSelect(true);
+        break;
+      case JoystickState::BTN_DOWN:
+        if(!focus->next) {
+          return;
+        }
+        focus->setSelect(false);
+        focus = focus->next;
+        focus->setSelect(true);
+        break;
+      case JoystickState::BTN_ENTER:
+        focus->trigger();
+        break;
+      default:
+        return;
+    }
+    int distanceDown = 0;
+    MenuItem * temp = firstVisible;
+    while(temp != focus) {
+      if(!temp->next) {
+        distanceDown = 0;
+        break;
+      }
+      temp = temp->next;
+      distanceDown++;
+
+    }
+    if(distanceDown >= UI_LINES_IN_MENU) {
+      firstVisible = firstVisible->next;
+    }
+    if(focus->next == firstVisible) {
+      firstVisible = firstVisible->prev;
+    }
+    dirty = true;
+  }
+
+  bool isDirty() {
+    return dirty;
+  }
+
+  void addMenuItem(MenuItem * item) {
+    item->prev = tail;
+    item->next = nullptr;
+    if(tail) {
+      tail->next = item;
+    } else {
+      firstVisible = item;
+      focus = item;
+      item->setSelect(true);
+    }
+    tail = item;
+    dirty = true;
+  }
+private:
+  JoystickState prevState = JoystickState::BTN_NOTHING;
+  bool dirty = true;
+  MenuItem * tail = nullptr;
+  MenuItem * firstVisible = nullptr;
+  MenuItem * focus = nullptr;
+};
+
 
