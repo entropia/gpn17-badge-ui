@@ -25,18 +25,18 @@ uint16_t read16(File &f) {
 }
 
 
-void SimpleTextDisplay::draw(TFT_ILI9163C* tft) {
-    tft->fillScreen(WHITE);
-    tft->setTextColor(BLACK);
+void SimpleTextDisplay::draw(TFT_ILI9163C* tft, Theme * theme) {
+    tft->fillScreen(theme->backgroundColor);
+    tft->setTextColor(theme->textColor);
     tft->setFont(&FreeSans9pt7b);
     tft->setCursor(2, 18);
     tft->print(this->text);
     this->dirty = false;
 }
 
-void FullScreenStatus::draw(TFT_ILI9163C* tft) {
-    tft->fillScreen(WHITE);
-    tft->setTextColor(BLACK);
+void FullScreenStatus::draw(TFT_ILI9163C* tft, Theme * theme) {
+    tft->fillScreen(theme->backgroundColor);
+    tft->setTextColor(theme->textColor);
     tft->setFont(&FreeSans24pt7b);
     tft->setTextSize(1);
     tft->setCursor(5, 75);
@@ -48,9 +48,9 @@ void FullScreenStatus::draw(TFT_ILI9163C* tft) {
 }
 
 // Stolen from https://github.com/Jan--Henrik/TFT_ILI9163C/blob/master/examples/SD_example/SD_example.ino
-void FullScreenBMPStatus::draw(TFT_ILI9163C* tft) {
-    tft->fillScreen(WHITE);
-    tft->setTextColor(BLACK);
+void FullScreenBMPStatus::draw(TFT_ILI9163C* tft, Theme * theme) {
+    tft->fillScreen(theme->backgroundColor);
+    tft->setTextColor(theme->textColor);
     if(bmp) {
         bmpDraw(this->bmp, bmpx, bmpy, tft);
     }
@@ -60,36 +60,36 @@ void FullScreenBMPStatus::draw(TFT_ILI9163C* tft) {
     this->dirty = false;
 }
 
-void Menu::draw(TFT_ILI9163C* tft) {
-    tft->fillScreen(WHITE);
+void Menu::draw(TFT_ILI9163C* tft, Theme * theme) {
+    tft->fillScreen(theme->backgroundColor);
     MenuItem * currentDraw = firstVisible;
     int i = 0;
     while(currentDraw && i < UI_LINES_IN_MENU) {
         tft->setCursor(10, (i*_TFTHEIGHT/UI_LINES_IN_MENU)+25);
-        tft->drawLine(0, i*_TFTHEIGHT/UI_LINES_IN_MENU, _TFTWIDTH, i*_TFTHEIGHT/UI_LINES_IN_MENU, BLACK);
-        currentDraw->draw(tft);
+        tft->drawLine(0, i*_TFTHEIGHT/UI_LINES_IN_MENU, _TFTWIDTH, i*_TFTHEIGHT/UI_LINES_IN_MENU, theme->foregroundColor);
+        currentDraw->draw(tft, theme);
         currentDraw = currentDraw->next;
         i++;
     }
     this->dirty = false;
 }
 
-void MenuItem::draw(TFT_ILI9163C* tft){
+void MenuItem::draw(TFT_ILI9163C* tft, Theme * theme){
     tft->setFont(&FreeSans9pt7b);
     tft->setTextSize(1);
     if(selected) {
-        tft->setTextColor(BLUE);
+        tft->setTextColor(theme->selectedTextColor);
     } else {
-        tft->setTextColor(BLACK);
+        tft->setTextColor(theme->textColor);
     }
     tft->print(this->text);
 }
 
 
-void NotificationScreen::draw(TFT_ILI9163C * tft) {
-    tft->fillScreen(WHITE);
+void NotificationScreen::draw(TFT_ILI9163C * tft, Theme * theme) {
+    tft->fillScreen(theme->backgroundColor);
     tft->setCursor(0,15);
-    tft->setTextColor(BLACK);
+    tft->setTextColor(theme->textColor);
     tft->setFont(&FreeSans9pt7b);
     if(location == "") {
         tft->printf("%s\n\n%s", summary.c_str(), description.c_str()); 

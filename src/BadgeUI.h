@@ -3,6 +3,7 @@
 
 #define BUFFPIXEL 20
 #include <GPNBadge.hpp>
+#include <UIThemes.h>
 
 #define UI_LINES_IN_MENU 3
 
@@ -10,7 +11,7 @@
 
 class UIElement {
 public:
-  virtual void draw(TFT_ILI9163C* tft) = 0;
+  virtual void draw(TFT_ILI9163C* tft, Theme * theme) = 0;
   virtual bool isDirty() = 0;
   virtual void dispatchInput(JoystickState state) {}
   virtual ~UIElement() {}
@@ -22,7 +23,7 @@ public:
 
 class FullScreenStatus: public UIElement {
 public:
-  void draw(TFT_ILI9163C* tft);
+  void draw(TFT_ILI9163C* tft, Theme * theme);
 
   bool isDirty() {
     return dirty;
@@ -49,7 +50,7 @@ class NotificationScreen: public UIElement {
 public:
   NotificationScreen(String summary, String location, String description): summary(summary), location(location), description(description){}
 
-  void draw(TFT_ILI9163C* tft);
+  void draw(TFT_ILI9163C* tft, Theme * theme);
 
   bool isDirty() {
     return dirty;
@@ -72,7 +73,7 @@ private:
 
 class FullScreenBMPStatus: public UIElement {
 public:
-  void draw(TFT_ILI9163C* tft);
+  void draw(TFT_ILI9163C* tft, Theme * theme);
 
   bool isDirty() {
     return dirty;
@@ -110,7 +111,7 @@ private:
 
 class SimpleTextDisplay: public UIElement {
 public:
-  void draw(TFT_ILI9163C* tft);
+  void draw(TFT_ILI9163C* tft, Theme * theme);
   bool isDirty() {
     return dirty;
   }
@@ -153,7 +154,7 @@ public:
       return;
     }
     if(forceRedraw || head->isDirty()) {
-      head->draw(this->tft);
+      head->draw(this->tft, theme);
       this->tft->writeFramebuffer();
       forceRedraw = false;
     }
@@ -166,11 +167,18 @@ public:
     prevState = state;
     head->dispatchInput(state);
   }
+
+  void setTheme(Theme * theme) {
+    delete this->theme;
+    this->theme = theme;
+    forceRedraw = true;
+  }
 protected:
   TFT_ILI9163C* tft;
 private:
   bool forceRedraw = false;
   JoystickState prevState = JoystickState::BTN_NOTHING;
+  Theme * theme = new ThemeLight();
 };
 
 class MenuItem: public UIElement {
@@ -179,7 +187,7 @@ public:
   MenuItem(String text, std::function<void(void)> trigger): text(text), triggerFunc(trigger) {
   } 
 
-  void draw(TFT_ILI9163C* tft);
+  void draw(TFT_ILI9163C* tft, Theme * theme);
   
   bool isDirty() {
     return true;
@@ -211,7 +219,7 @@ public:
     }
   }
 
-  void draw(TFT_ILI9163C* tft);
+  void draw(TFT_ILI9163C* tft, Theme * theme);
 
   void dispatchInput(JoystickState state) {
     switch(state) {
