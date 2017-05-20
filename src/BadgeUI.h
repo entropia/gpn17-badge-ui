@@ -5,8 +5,6 @@
 #include <GPNBadge.hpp>
 #include <UIThemes.h>
 
-#define UI_LINES_IN_MENU 3
-
 #define BLUE    0x001F
 
 class UIElement {
@@ -210,6 +208,8 @@ protected:
 
 class Menu: public UIElement {
 public:
+  Menu(int itemsPerPage): itemsPerPage(itemsPerPage) {}
+  Menu():Menu(3) {}
   ~Menu(){
     MenuItem * ite = tail;
     while(ite) {
@@ -256,7 +256,7 @@ public:
       distanceDown++;
 
     }
-    if(distanceDown >= UI_LINES_IN_MENU) {
+    if(distanceDown >= itemsPerPage) {
       firstVisible = firstVisible->next;
     }
     if(focus->next == firstVisible) {
@@ -287,6 +287,7 @@ private:
   MenuItem * tail = nullptr;
   MenuItem * firstVisible = nullptr;
   MenuItem * focus = nullptr;
+  int itemsPerPage;
 };
 
 

@@ -64,9 +64,9 @@ void Menu::draw(TFT_ILI9163C* tft, Theme * theme) {
     tft->fillScreen(theme->backgroundColor);
     MenuItem * currentDraw = firstVisible;
     int i = 0;
-    while(currentDraw && i < UI_LINES_IN_MENU) {
-        tft->setCursor(10, (i*_TFTHEIGHT/UI_LINES_IN_MENU)+25);
-        tft->drawLine(0, i*_TFTHEIGHT/UI_LINES_IN_MENU, _TFTWIDTH, i*_TFTHEIGHT/UI_LINES_IN_MENU, theme->foregroundColor);
+    while(currentDraw && i < itemsPerPage) {
+        tft->setCursor(10, (i*_TFTHEIGHT/itemsPerPage)+25);
+        tft->drawLine(0, i*_TFTHEIGHT/itemsPerPage, _TFTWIDTH, i*_TFTHEIGHT/itemsPerPage, theme->foregroundColor);
         currentDraw->draw(tft, theme);
         currentDraw = currentDraw->next;
         i++;
