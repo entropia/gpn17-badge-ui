@@ -1,6 +1,7 @@
 #include <Adafruit_GFX.h>
 #include <Fonts/FreeSans24pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans7pt7b.h>
 #include <FS.h>
 #include <TFT_ILI9163C.h>
 
@@ -75,7 +76,7 @@ void Menu::draw(TFT_ILI9163C* tft, Theme * theme) {
 }
 
 void MenuItem::draw(TFT_ILI9163C* tft, Theme * theme){
-    tft->setFont(&FreeSans9pt7b);
+    tft->setFont(&FreeSans7pt7b);
     tft->setTextSize(1);
     if(selected) {
         tft->setTextColor(theme->selectedTextColor);
@@ -90,7 +91,7 @@ void NotificationScreen::draw(TFT_ILI9163C * tft, Theme * theme) {
     tft->fillScreen(theme->backgroundColor);
     tft->setCursor(0,15);
     tft->setTextColor(theme->textColor);
-    tft->setFont(&FreeSans9pt7b);
+    tft->setFont(&FreeSans7pt7b);
     if(location == "") {
         tft->printf("%s\n\n%s", summary.c_str(), description.c_str()); 
     } else {
