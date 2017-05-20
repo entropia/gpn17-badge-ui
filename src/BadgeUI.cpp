@@ -94,7 +94,7 @@ void NotificationScreen::draw(TFT_ILI9163C * tft, Theme * theme) {
     if(location == "") {
         tft->printf("%s\n\n%s", summary.c_str(), description.c_str()); 
     } else {
-        tft->printf("%s@%s\n\n%s", summary.c_str(), location.c_str(), description.c_str()); 
+        tft->printf("%s\n@%s\n\n%s", summary.c_str(), location.c_str(), description.c_str()); 
     }
     dirty = false;
 }
