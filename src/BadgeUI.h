@@ -9,7 +9,7 @@
 
 class UIElement {
 public:
-  virtual void draw(TFT_ILI9163C* tft, Theme * theme) = 0;
+  virtual void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) = 0;
   virtual bool isDirty() = 0;
   virtual void dispatchInput(JoystickState state) {}
   virtual ~UIElement() {}
@@ -17,11 +17,14 @@ public:
   virtual bool isValid() {
     return true;
   }
+  virtual bool requiresFullScreen() {
+    return false;
+  }
 };
 
 class FullScreenStatus: public UIElement {
 public:
-  void draw(TFT_ILI9163C* tft, Theme * theme);
+  void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
 
   bool isDirty() {
     return dirty;
@@ -36,19 +39,67 @@ public:
     this->dirty = true;
   }
 
+  bool requiresFullScreen() {
+    return true;
+  }
+
 private:
   String main = "FULL";
   String sub ="screen status";
   bool dirty = true;
 };
 
+class Overlay: public UIElement {
+public:  
+  virtual uint16_t getOffsetX() = 0;
+  virtual uint16_t getOffsetY() = 0;
+  bool isValid() {
+    return true;
+  }
+  bool requiresFullScreen() {
+    return false;
+  }
+  virtual void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) = 0;
+  virtual bool isDirty() = 0;
+};
 
+class StatusOverlay: public Overlay {
+public:
+  StatusOverlay(uint16_t batCritical, uint16_t batFull): batCritical(batCritical), batFull(batFull), bat(batCritical) {}
+  bool isDirty() {
+    return dirty;
+  }
+  void draw(TFT_ILI9163C* tft, Theme * Theme, uint16_t offsetX, uint16_t offsetY);
+  bool isValid() {
+    return true;
+  }
+  void updateBat(uint16_t bat) {
+    if(this->bat == bat) {
+      return;
+    }
+    this->bat = bat;
+    this->dirty = true;
+  }
+  void updateWiFiState(String wifi) {
+    if(this->wifi.equals(wifi)) {
+      return;
+    }
+    this->wifi = wifi;
+    this->dirty = true;
+  }
+  uint16_t getOffsetX();
+  uint16_t getOffsetY();
+private:
+  String wifi;
+  uint16_t bat, batCritical, batFull;
+  bool dirty = true;
+};
 
 class NotificationScreen: public UIElement {
 public:
   NotificationScreen(String summary, String location, String description): summary(summary), location(location), description(description){}
 
-  void draw(TFT_ILI9163C* tft, Theme * theme);
+  void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
 
   bool isDirty() {
     return dirty;
@@ -63,6 +114,10 @@ public:
   bool isValid() {
     return valid;
   }
+
+  bool requiresFullScreen() {
+    return true;
+  }
 private:
   String summary, location, description;
   bool dirty = true;
@@ -71,7 +126,7 @@ private:
 
 class FullScreenBMPStatus: public UIElement {
 public:
-  void draw(TFT_ILI9163C* tft, Theme * theme);
+  void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
 
   bool isDirty() {
     return dirty;
@@ -96,6 +151,10 @@ public:
     this->dirty = true;
   }
 
+  bool requiresFullScreen() {
+    return true;
+  }
+
 private:
   char* bmp = nullptr;
   String sub ="screen status";
@@ -109,7 +168,7 @@ private:
 
 class SimpleTextDisplay: public UIElement {
 public:
-  void draw(TFT_ILI9163C* tft, Theme * theme);
+  void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
   bool isDirty() {
     return dirty;
   }
@@ -152,9 +211,19 @@ public:
       return;
     }
     if(forceRedraw || head->isDirty()) {
-      head->draw(this->tft, theme);
+      if(overlay && !head->requiresFullScreen()) {
+        head->draw(this->tft, theme, overlay->getOffsetX(), overlay->getOffsetY());
+      } else { 
+        head->draw(this->tft, theme,0 ,0);
+      }
       this->tft->writeFramebuffer();
       forceRedraw = false;
+      if(overlay && !head->requiresFullScreen()) {
+        overlay->draw(this->tft, theme, 0, 0);
+      } 
+    }
+    if(overlay && !head->requiresFullScreen() && overlay->isDirty()) {
+      overlay->draw(this->tft, theme, 0, 0);
     }
   }
 
@@ -171,9 +240,15 @@ public:
     this->theme = theme;
     forceRedraw = true;
   }
+
+  void setOverlay(Overlay * overlay) {
+    this->overlay = overlay;
+    forceRedraw = true;
+  }
 protected:
   TFT_ILI9163C* tft;
 private:
+  Overlay * overlay = nullptr;
   bool forceRedraw = false;
   JoystickState prevState = JoystickState::BTN_NOTHING;
   Theme * theme = new ThemeLight();
@@ -185,7 +260,7 @@ public:
   MenuItem(String text, std::function<void(void)> trigger): text(text), triggerFunc(trigger) {
   } 
 
-  void draw(TFT_ILI9163C* tft, Theme * theme);
+  void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
   
   bool isDirty() {
     return true;
@@ -219,7 +294,7 @@ public:
     }
   }
 
-  void draw(TFT_ILI9163C* tft, Theme * theme);
+  void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
 
   void dispatchInput(JoystickState state) {
     switch(state) {

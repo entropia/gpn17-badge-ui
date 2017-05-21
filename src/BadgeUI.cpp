@@ -2,6 +2,7 @@
 #include <Fonts/FreeSans24pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSans7pt7b.h>
+#include <Fonts/Org_01.h>
 #include <FS.h>
 #include <TFT_ILI9163C.h>
 
@@ -26,7 +27,7 @@ uint16_t read16(File &f) {
 }
 
 
-void SimpleTextDisplay::draw(TFT_ILI9163C* tft, Theme * theme) {
+void SimpleTextDisplay::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
     tft->fillScreen(theme->backgroundColor);
     tft->setTextColor(theme->textColor);
     tft->setFont(&FreeSans9pt7b);
@@ -35,7 +36,7 @@ void SimpleTextDisplay::draw(TFT_ILI9163C* tft, Theme * theme) {
     this->dirty = false;
 }
 
-void FullScreenStatus::draw(TFT_ILI9163C* tft, Theme * theme) {
+void FullScreenStatus::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
     tft->fillScreen(theme->backgroundColor);
     tft->setTextColor(theme->textColor);
     tft->setFont(&FreeSans24pt7b);
@@ -49,7 +50,7 @@ void FullScreenStatus::draw(TFT_ILI9163C* tft, Theme * theme) {
 }
 
 // Stolen from https://github.com/Jan--Henrik/TFT_ILI9163C/blob/master/examples/SD_example/SD_example.ino
-void FullScreenBMPStatus::draw(TFT_ILI9163C* tft, Theme * theme) {
+void FullScreenBMPStatus::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
     tft->fillScreen(theme->backgroundColor);
     tft->setTextColor(theme->textColor);
     if(bmp) {
@@ -61,21 +62,23 @@ void FullScreenBMPStatus::draw(TFT_ILI9163C* tft, Theme * theme) {
     this->dirty = false;
 }
 
-void Menu::draw(TFT_ILI9163C* tft, Theme * theme) {
+void Menu::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
     tft->fillScreen(theme->backgroundColor);
     MenuItem * currentDraw = firstVisible;
+    uint16_t width = _TFTWIDTH-offsetX;
+    uint16_t height = _TFTHEIGHT-offsetY;
     int i = 0;
     while(currentDraw && i < itemsPerPage) {
-        tft->setCursor(10, (i*_TFTHEIGHT/itemsPerPage)+25);
-        tft->drawLine(0, i*_TFTHEIGHT/itemsPerPage, _TFTWIDTH, i*_TFTHEIGHT/itemsPerPage, theme->foregroundColor);
-        currentDraw->draw(tft, theme);
+        tft->setCursor(10+offsetX, (i*height/itemsPerPage)+25+offsetY);
+        tft->drawLine(offsetX, i*height/itemsPerPage+offsetY, width, i*height/itemsPerPage+offsetY, theme->foregroundColor);
+        currentDraw->draw(tft, theme, 0, 0);
         currentDraw = currentDraw->next;
         i++;
     }
     this->dirty = false;
 }
 
-void MenuItem::draw(TFT_ILI9163C* tft, Theme * theme){
+void MenuItem::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY){
     tft->setFont(&FreeSans7pt7b);
     tft->setTextSize(1);
     if(selected) {
@@ -86,8 +89,28 @@ void MenuItem::draw(TFT_ILI9163C* tft, Theme * theme){
     tft->print(this->text);
 }
 
+void StatusOverlay::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
+    tft->fillRect(0, 0,_TFTWIDTH, 11, theme->backgroundColor);
+    tft->setTextColor(theme->textColor);
+    tft->setCursor(0, 7);
+    tft->setTextSize(1);
+    tft->setFont(&Org_01);
+    tft->print(wifi);
+    tft->setCursor(80, 7);
+    tft->printf("Bat: %d%%", int((bat-batCritical)/float(batFull-batCritical)*100));
+    tft->drawLine(0, 11, _TFTWIDTH, 11, theme->foregroundColor);
+    dirty = false;
+}
 
-void NotificationScreen::draw(TFT_ILI9163C * tft, Theme * theme) {
+uint16_t StatusOverlay::getOffsetX(){
+    return 0;
+}
+
+uint16_t StatusOverlay::getOffsetY(){
+    return 11;
+}
+
+void NotificationScreen::draw(TFT_ILI9163C * tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
     tft->fillScreen(theme->backgroundColor);
     tft->setCursor(0,15);
     tft->setTextColor(theme->textColor);
