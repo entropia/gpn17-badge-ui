@@ -65,8 +65,8 @@ void FullScreenBMPStatus::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offset
 void Menu::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
     tft->fillScreen(theme->backgroundColor);
     MenuItem * currentDraw = firstVisible;
-    uint16_t width = _TFTWIDTH-offsetX;
-    uint16_t height = _TFTHEIGHT-offsetY;
+    uint16_t width = _TFTWIDTH-offsetX-1;
+    uint16_t height = _TFTHEIGHT-offsetY-1;
     int i = 0;
     while(currentDraw && i < itemsPerPage) {
         tft->setCursor(10+offsetX, (i*height/itemsPerPage)+25+offsetY);
@@ -98,7 +98,7 @@ void StatusOverlay::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uin
     tft->print(wifi);
     tft->setCursor(80, 7);
     tft->printf("Bat: %d%%", std::max(std::min(int((bat-batCritical)/float(batFull-batCritical)*100), 100),0));
-    tft->drawLine(0, 11, _TFTWIDTH, 11, theme->foregroundColor);
+    tft->drawLine(0, 11, _TFTWIDTH-1, 11, theme->foregroundColor);
     dirty = false;
 }
 
