@@ -97,7 +97,7 @@ void StatusOverlay::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uin
     tft->setFont(&Org_01);
     tft->print(wifi);
     tft->setCursor(80, 7);
-    tft->printf("Bat: %d%%", int((bat-batCritical)/float(batFull-batCritical)*100));
+    tft->printf("Bat: %d%%", std::max(std::min(int((bat-batCritical)/float(batFull-batCritical)*100), 100),0));
     tft->drawLine(0, 11, _TFTWIDTH, 11, theme->foregroundColor);
     dirty = false;
 }
