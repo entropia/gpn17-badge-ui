@@ -271,6 +271,10 @@ public:
     this->overlay = overlay;
     forceRedraw = true;
   }
+
+  Theme * getTheme() {
+    return theme;
+  }
 protected:
   TFT_ILI9163C* tft;
 private:
@@ -298,7 +302,6 @@ public:
 
   void setText(String text) {
     this->text = text;
-    dirty = false;
   }
 private:
   String text;
