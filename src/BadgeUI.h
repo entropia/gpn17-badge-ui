@@ -170,7 +170,6 @@ private:
   uint16_t suby = 105;
 };
 
-
 class FullScreenBMPDisplay: public UIElement, BMPRender {
 public:
   void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
@@ -187,9 +186,20 @@ public:
     return true;
   }
 
+  void dispatchInput(JoystickState state) {
+    if(state == JoystickState::BTN_ENTER) {
+      valid = false;
+    }
+  }
+
+  bool isValid() {
+    return valid;
+  }
+
 private:
   char* bmp = nullptr;
   bool dirty = true;
+  bool valid = true;
 };
 
 class SimpleTextDisplay: public UIElement {
