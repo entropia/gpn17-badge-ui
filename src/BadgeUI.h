@@ -295,6 +295,11 @@ public:
   void setSelect(bool selected) {
     this->selected = selected;
   }
+
+  void setText(String text) {
+    this->text = text;
+    dirty = false;
+  }
 private:
   String text;
   std::function<void(void)> triggerFunc;
