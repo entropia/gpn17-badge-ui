@@ -66,7 +66,7 @@ void FullScreenBMPDisplay::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offse
     tft->fillScreen(theme->backgroundColor);
     if(bmp) {
         bmpDraw(this->bmp, 0, 0, tft);
-        this->dirty = dirty;
+        this->dirty = false;
     }
 }
 
