@@ -303,6 +303,10 @@ public:
   void setText(String text) {
     this->text = text;
   }
+
+  void setTrigger(std::function<void()> triggr) {
+    this->triggerFunc = triggr;
+  }
 private:
   String text;
   std::function<void(void)> triggerFunc;
