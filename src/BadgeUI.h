@@ -124,7 +124,12 @@ private:
   bool valid = true;
 };
 
-class FullScreenBMPStatus: public UIElement {
+class BMPRender {
+public:
+  void bmpDraw(const char *filename, uint8_t x, uint16_t y, TFT_ILI9163C* tft);
+};
+
+class FullScreenBMPStatus: public UIElement, BMPRender {
 public:
   void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
 
@@ -163,7 +168,28 @@ private:
   uint16_t bmpy = 0;
   uint16_t subx = 12;
   uint16_t suby = 105;
-  void bmpDraw(const char *filename, uint8_t x, uint16_t y, TFT_ILI9163C* tft);
+};
+
+
+class FullScreenBMPDisplay: public UIElement, BMPRender {
+public:
+  void draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY);
+
+  bool isDirty() {
+    return dirty;
+  }
+  void setBmp(char* path) {
+    this->bmp = path;
+    this->dirty = true;
+  }
+
+  bool requiresFullScreen() {
+    return true;
+  }
+
+private:
+  char* bmp = nullptr;
+  bool dirty = true;
 };
 
 class SimpleTextDisplay: public UIElement {

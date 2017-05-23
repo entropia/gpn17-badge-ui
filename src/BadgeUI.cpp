@@ -62,6 +62,14 @@ void FullScreenBMPStatus::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offset
     this->dirty = false;
 }
 
+void FullScreenBMPDisplay::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
+    tft->fillScreen(theme->backgroundColor);
+    if(bmp) {
+        bmpDraw(this->bmp, 0, 0, tft);
+        this->dirty = dirty;
+    }
+}
+
 void Menu::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX, uint16_t offsetY) {
     tft->fillScreen(theme->backgroundColor);
     MenuItem * currentDraw = firstVisible;
@@ -123,7 +131,7 @@ void NotificationScreen::draw(TFT_ILI9163C * tft, Theme * theme, uint16_t offset
     dirty = false;
 }
 
-void FullScreenBMPStatus::bmpDraw(const char *filename, uint8_t x, uint16_t y, TFT_ILI9163C* tft) {
+void BMPRender::bmpDraw(const char *filename, uint8_t x, uint16_t y, TFT_ILI9163C* tft) {
     File     bmpFile;
     uint16_t bmpWidth, bmpHeight;   // W+H in pixels
     uint8_t  bmpDepth;              // Bit depth (currently must be 24)
