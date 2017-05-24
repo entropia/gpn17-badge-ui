@@ -31,7 +31,7 @@ void SimpleTextDisplay::draw(TFT_ILI9163C* tft, Theme * theme, uint16_t offsetX,
     tft->fillScreen(theme->backgroundColor);
     tft->setTextColor(theme->textColor);
     tft->setFont(&FreeSans9pt7b);
-    tft->setCursor(2, 18);
+    tft->setCursor(2 + offsetX, 18 + offsetY);
     tft->print(this->text);
     this->dirty = false;
 }

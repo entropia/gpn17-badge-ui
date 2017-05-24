@@ -218,6 +218,30 @@ private:
   bool dirty = true;
 };
 
+class ClosableTextDisplay: public SimpleTextDisplay {
+public:
+
+  void dispatchInput(JoystickState state) {
+    if(state == JoystickState::BTN_ENTER) {
+      valid = false;
+      onClose();
+    }
+  }
+
+  bool isValid() {
+    return valid;
+  }
+
+  void setOnClose(std::function<void()> onClose) {
+    this->onClose = onClose;
+  }
+
+
+private:
+  bool valid = true;
+  std::function<void()> onClose;
+};
+
 class WindowSystem {
 public:
   FullScreenBMPStatus* root;
