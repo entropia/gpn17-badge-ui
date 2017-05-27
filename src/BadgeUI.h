@@ -285,14 +285,15 @@ public:
       } else { 
         head->draw(this->tft, theme,0 ,0);
       }
-      this->tft->writeFramebuffer();
-      forceRedraw = false;
       if(overlay && !head->requiresFullScreen()) {
         overlay->draw(this->tft, theme, 0, 0);
-      } 
+      }
+      this->tft->writeFramebuffer();
+      forceRedraw = false;
     }
     if(overlay && !head->requiresFullScreen() && overlay->isDirty()) {
       overlay->draw(this->tft, theme, 0, 0);
+      this->tft->writeFramebuffer();
     }
   }
 
