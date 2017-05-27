@@ -80,6 +80,14 @@ public:
     this->bat = bat;
     this->dirty = true;
   }
+  void updateClock(uint8_t hours, uint8_t minutes) {
+    if(this->hours == hours && this->minutes == minutes) {
+      return;
+    }
+    this->minutes = minutes;
+    this->hours = hours;
+    this->dirty = true;
+  }
   void updateWiFiState(String wifi) {
     if(this->wifi.equals(wifi)) {
       return;
@@ -92,6 +100,7 @@ public:
 private:
   String wifi;
   uint16_t bat, batCritical, batFull;
+  uint8_t hours,minutes;
   bool dirty = true;
 };
 
